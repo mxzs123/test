@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>芝生药局 - 预览容器 (19.5:9 竖屏)</title>
+  <style>
+    :root {
+      --ratio-w: 9;
+      --ratio-h: 19.5;
+      --bg: #0f172a;
+      --accent: #4a9b4e;
+      --panel: #111827;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 12px;
+    }
+    header {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      padding: 10px 12px;
+      background: var(--panel);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      position: sticky; top: 0; z-index: 10;
+    }
+    header .title { font-weight: 600; margin-right: 8px; opacity: 0.9; }
+    header select, header input {
+      background: #0b1220;
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 8px 10px;
+      border-radius: 8px;
+      outline: none;
+    }
+    header button, header a.btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    header .spacer { flex: 1; }
+    main { display: grid; place-items: center; padding: 8px 0 20px; }
+    .device-frame {
+      width: min(100vw, calc(100vh * var(--ratio-w) / var(--ratio-h)));
+      height: min(100vh, calc(100vw * var(--ratio-h) / var(--ratio-w)));
+      aspect-ratio: calc(var(--ratio-w) / var(--ratio-h));
+      background: #fff;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 20px 80px rgba(0,0,0,0.45), 0 2px 12px rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .device-frame iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+      background: #fff;
+    }
+    .hint { color: var(--muted); font-size: 12px; margin-left: 8px; }
+  </style>
+  <script>
+    // 防止在 iframe 中嵌套自身
+    if (window.top !== window) {
+      try { window.top.location.href = window.location.href; } catch (e) {}
+    }
+  </script>
+</head>
+<body>
+  <header>
+    <span class="title">页面</span>
+    <select id="pageSelect" aria-label="选择页面"></select>
+    <button id="goBtn">打开</button>
+    <input id="customPage" placeholder="或输入任意页面路径，如 product-detail-page.html?id=3" style="min-width: 360px;" />
+    <button id="loadCustom">加载</button>
+    <span class="hint">保持在 iPhone 19.5:9 竖屏容器内预览</span>
+    <div class="spacer"></div>
+    <a class="btn" id="openNew" href="#" target="_blank" rel="noopener">新窗口打开</a>
+  </header>
+  <main>
+    <div class="device-frame">
+      <iframe id="viewer" src="about:blank"></iframe>
+    </div>
+  </main>
+
+  <script>
+    const pages = [
+      { label: '首页（原型）', value: 'zhisheng-pharmacy-prototype.html' },
+      { label: '登录页', value: 'login-page.html' },
+      { label: '商品详情', value: 'product-detail-page.html' },
+      { label: '结算页', value: 'checkout-page.html' },
+      { label: '健康问卷', value: 'questionnaire-page.html' },
+      { label: '订单列表', value: 'orders-page.html' },
+      { label: '订单详情', value: 'order-detail-page.html' },
+      { label: '身份证上传', value: 'upload-id-page.html' }
+    ];
+
+    const sel = document.getElementById('pageSelect');
+    const goBtn = document.getElementById('goBtn');
+    const viewer = document.getElementById('viewer');
+    const openNew = document.getElementById('openNew');
+    const customInput = document.getElementById('customPage');
+    const loadCustom = document.getElementById('loadCustom');
+
+    // 初始化下拉
+    pages.forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = p.value; opt.textContent = p.label + ' — ' + p.value;
+      sel.appendChild(opt);
+    });
+
+    function getParam(name) {
+      const u = new URL(window.location.href);
+      return u.searchParams.get(name);
+    }
+    function setParam(name, value) {
+      const u = new URL(window.location.href);
+      if (value) u.searchParams.set(name, value); else u.searchParams.delete(name);
+      history.replaceState(null, '', u.toString());
+    }
+
+    function load(page) {
+      if (!page) return;
+      viewer.src = page;
+      setParam('page', page);
+      openNew.href = page;
+      // 同步下拉当前项
+      const exists = Array.from(sel.options).some(o => o.value === page);
+      if (exists) sel.value = page; else sel.value = pages[0].value;
+      try { localStorage.setItem('preview_last_page', page); } catch (e) {}
+    }
+
+    // 事件绑定
+    sel.addEventListener('change', () => load(sel.value));
+    goBtn.addEventListener('click', () => load(sel.value));
+    loadCustom.addEventListener('click', () => {
+      const v = (customInput.value || '').trim();
+      if (v) load(v);
+    });
+    customInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const v = (customInput.value || '').trim();
+        if (v) load(v);
+      }
+    });
+
+    // 初始页面：优先 ?page= 其后 localStorage，默认首页
+    const initial = getParam('page')
+      || (localStorage.getItem('preview_last_page') || '')
+      || 'zhisheng-pharmacy-prototype.html';
+    load(initial);
+  </script>
+</body>
+</html>

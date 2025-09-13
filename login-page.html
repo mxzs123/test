@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - 芝生药局</title>
+    <script>
+        (function(){
+            try {
+                if (window.top === window) {
+                    var page = location.pathname.split('/').pop() + (location.search || '') + (location.hash || '');
+                    location.replace('index.html?page=' + encodeURIComponent(page));
+                }
+            } catch(e) {}
+        })();
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Logo区域 */
+        .logo-section {
+            padding: 60px 20px 40px;
+            text-align: center;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 20px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(74, 155, 78, 0.2);
+            font-size: 36px;
+            color: #4a9b4e;
+            font-weight: bold;
+        }
+
+        .app-name {
+            font-size: 24px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .app-slogan {
+            font-size: 14px;
+            color: #666;
+            margin-top: 8px;
+        }
+
+        /* 登录表单 */
+        .login-container {
+            flex: 1;
+            background: white;
+            border-radius: 30px 30px 0 0;
+            padding: 30px 20px;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+        }
+
+        .login-tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .tab-item {
+            flex: 1;
+            padding: 12px 0;
+            text-align: center;
+            font-size: 15px;
+            color: #666;
+            cursor: pointer;
+            position: relative;
+            transition: color 0.3s;
+        }
+
+        .tab-item.active {
+            color: #4a9b4e;
+            font-weight: 500;
+        }
+
+        .tab-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 2px;
+            background: #4a9b4e;
+        }
+
+        /* 表单内容 */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 微信登录 */
+        .wechat-login {
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        .wechat-qr {
+            width: 180px;
+            height: 180px;
+            background: #f0f0f0;
+            margin: 0 auto 20px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 14px;
+        }
+
+        .wechat-tip {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .wechat-btn {
+            width: 100%;
+            padding: 14px;
+            background: #09bb07;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .wechat-icon {
+            width: 20px;
+            height: 20px;
+            background: white;
+            mask-image: url('data:image/svg+xml,<svg viewBox="0 0 24 24"><path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 0 1 .598.082l1.584.926a.272.272 0 0 0 .14.047c.134 0 .24-.111.24-.247 0-.06-.023-.12-.038-.177l-.327-1.233a.582.582 0 0 1-.023-.156.49.49 0 0 1 .201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-6.656-6.088V8.89c-.135-.01-.27-.027-.407-.03zm-2.53 3.274c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.97-.982zm4.844 0c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982z"/></svg>');
+            -webkit-mask-image: url('data:image/svg+xml,<svg viewBox="0 0 24 24"><path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 0 1 .598.082l1.584.926a.272.272 0 0 0 .14.047c.134 0 .24-.111.24-.247 0-.06-.023-.12-.038-.177l-.327-1.233a.582.582 0 0 1-.023-.156.49.49 0 0 1 .201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-6.656-6.088V8.89c-.135-.01-.27-.027-.407-.03zm-2.53 3.274c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.97-.982zm4.844 0c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982z"/></svg>');
+        }
+
+        /* 手机号登录 */
+        .phone-login {
+            padding: 20px 0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #4a9b4e;
+        }
+
+        .country-code {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #333;
+            font-size: 15px;
+            pointer-events: none;
+        }
+
+        .form-input.with-code {
+            padding-left: 50px;
+        }
+
+        .verification-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .verification-input {
+            flex: 1;
+        }
+
+        .get-code-btn {
+            padding: 12px 20px;
+            background: white;
+            border: 1px solid #4a9b4e;
+            color: #4a9b4e;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s;
+        }
+
+        .get-code-btn:hover {
+            background: #4a9b4e;
+            color: white;
+        }
+
+        .get-code-btn:disabled {
+            background: #f0f0f0;
+            border-color: #ddd;
+            color: #999;
+            cursor: not-allowed;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #4a9b4e, #6ab56e);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: opacity 0.3s;
+        }
+
+        .login-btn:active {
+            opacity: 0.9;
+        }
+
+        /* 协议 */
+        .agreement {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .agreement-check {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .agreement-checkbox {
+            margin-right: 8px;
+            margin-top: 2px;
+        }
+
+        .agreement-text {
+            font-size: 12px;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .agreement-link {
+            color: #4a9b4e;
+            text-decoration: none;
+        }
+
+        /* 其他登录方式 */
+        .other-login {
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .other-title {
+            font-size: 13px;
+            color: #999;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .other-title::before,
+        .other-title::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 60px;
+            height: 1px;
+            background: #e0e0e0;
+        }
+
+        .other-title::before {
+            left: 20%;
+        }
+
+        .other-title::after {
+            right: 20%;
+        }
+
+        .other-methods {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+        }
+
+        .other-method {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .other-method:hover {
+            background: #e0e0e0;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            z-index: 3000;
+            display: none;
+        }
+
+        .toast.show {
+            display: block;
+            animation: fadeInOut 2s ease;
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; }
+            20%, 80% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Logo区域 -->
+    <div class="logo-section">
+        <div class="logo">芝</div>
+        <div class="app-name">芝生药局</div>
+        <div class="app-slogan">您的跨境健康伙伴</div>
+    </div>
+
+    <!-- 登录容器 -->
+    <div class="login-container">
+        <!-- 登录方式切换 -->
+        <div class="login-tabs">
+            <div class="tab-item active" onclick="switchTab('wechat')">微信登录</div>
+            <div class="tab-item" onclick="switchTab('phone')">手机号登录</div>
+        </div>
+
+        <!-- 微信登录 -->
+        <div class="tab-content active" id="wechatTab">
+            <div class="wechat-login">
+                <button class="wechat-btn" onclick="wechatLogin()">
+                    <div class="wechat-icon"></div>
+                    微信一键登录
+                </button>
+                <div class="wechat-qr" style="margin-top: 30px;">
+                    微信二维码
+                </div>
+                <div class="wechat-tip">使用微信扫一扫登录</div>
+            </div>
+        </div>
+
+        <!-- 手机号登录 -->
+        <div class="tab-content" id="phoneTab">
+            <div class="phone-login">
+                <div class="form-group">
+                    <label class="form-label">手机号</label>
+                    <div class="input-group">
+                        <span class="country-code">+86</span>
+                        <input type="tel" class="form-input with-code" id="phoneNumber" placeholder="请输入手机号" maxlength="11">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">验证码</label>
+                    <div class="verification-group">
+                        <input type="text" class="form-input verification-input" id="verifyCode" placeholder="请输入验证码" maxlength="6">
+                        <button class="get-code-btn" id="getCodeBtn" onclick="getVerificationCode()">获取验证码</button>
+                    </div>
+                </div>
+
+                <button class="login-btn" onclick="phoneLogin()">登录</button>
+            </div>
+        </div>
+
+        <!-- 用户协议 -->
+        <div class="agreement">
+            <div class="agreement-check">
+                <input type="checkbox" id="agreement" class="agreement-checkbox" checked>
+                <label for="agreement" class="agreement-text">
+                    登录即表示同意
+                    <a href="#" class="agreement-link">《用户协议》</a>
+                    和
+                    <a href="#" class="agreement-link">《隐私政策》</a>
+                </label>
+            </div>
+        </div>
+
+        <!-- 其他登录方式 -->
+        <div class="other-login">
+            <div class="other-title">其他登录方式</div>
+            <div class="other-methods">
+                <div class="other-method" onclick="showToast('支付宝登录开发中')">支</div>
+                <div class="other-method" onclick="showToast('Apple ID登录开发中')">苹</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast提示 -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // 切换登录方式
+        function switchTab(type) {
+            // 更新Tab状态
+            const tabs = document.querySelectorAll('.tab-item');
+            const contents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => tab.classList.remove('active'));
+            contents.forEach(content => content.classList.remove('active'));
+            
+            if (type === 'wechat') {
+                tabs[0].classList.add('active');
+                document.getElementById('wechatTab').classList.add('active');
+            } else {
+                tabs[1].classList.add('active');
+                document.getElementById('phoneTab').classList.add('active');
+            }
+        }
+
+        // 微信登录
+        function wechatLogin() {
+            if (!checkAgreement()) return;
+            
+            showToast('正在跳转微信授权...');
+            setTimeout(() => {
+                // 模拟登录成功
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('userName', '微信用户');
+                window.location.href = 'index.html';
+            }, 1500);
+        }
+
+        // 获取验证码
+        let countdown = 0;
+        function getVerificationCode() {
+            const phone = document.getElementById('phoneNumber').value;
+            
+            if (!phone) {
+                showToast('请输入手机号');
+                return;
+            }
+            
+            if (!/^1[3-9]\d{9}$/.test(phone)) {
+                showToast('请输入正确的手机号');
+                return;
+            }
+            
+            // 开始倒计时
+            countdown = 60;
+            const btn = document.getElementById('getCodeBtn');
+            btn.disabled = true;
+            
+            const timer = setInterval(() => {
+                countdown--;
+                if (countdown > 0) {
+                    btn.textContent = `${countdown}秒后重试`;
+                } else {
+                    clearInterval(timer);
+                    btn.textContent = '获取验证码';
+                    btn.disabled = false;
+                }
+            }, 1000);
+            
+            showToast('验证码已发送');
+        }
+
+        // 手机号登录
+        function phoneLogin() {
+            if (!checkAgreement()) return;
+            
+            const phone = document.getElementById('phoneNumber').value;
+            const code = document.getElementById('verifyCode').value;
+            
+            if (!phone) {
+                showToast('请输入手机号');
+                return;
+            }
+            
+            if (!code) {
+                showToast('请输入验证码');
+                return;
+            }
+            
+            if (!/^1[3-9]\d{9}$/.test(phone)) {
+                showToast('请输入正确的手机号');
+                return;
+            }
+            
+            if (!/^\d{6}$/.test(code)) {
+                showToast('请输入6位数字验证码');
+                return;
+            }
+            
+            showToast('登录成功');
+            
+            // 模拟登录成功
+            setTimeout(() => {
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('userName', phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2'));
+                window.location.href = 'index.html';
+            }, 1000);
+        }
+
+        // 检查用户协议
+        function checkAgreement() {
+            const agreement = document.getElementById('agreement');
+            if (!agreement.checked) {
+                showToast('请先同意用户协议');
+                return false;
+            }
+            return true;
+        }
+
+        // 显示提示
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
